@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Norvelia Dashboard</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --card: #ffffff;
+    --text: #1d2330;
+    --muted: #6b7280;
+    --line: #e2e5ea;
+    --accent: #2c5282;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12151c; --card: #1c212c; --text: #e8ebf1; --muted: #9aa3b2; --line: #2b3240; --accent: #7fb0e6;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12151c; --card: #1c212c; --text: #e8ebf1; --muted: #9aa3b2; --line: #2b3240; --accent: #7fb0e6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.4;
+  }
+  main { max-width: 960px; margin: 0 auto; padding: 16px; }
+  header h1 { margin: 8px 0 4px; font-size: 1.8rem; }
+  header p { margin: 0 0 16px; color: var(--muted); }
+  section { margin-bottom: 24px; }
+  h2 { font-size: 1.15rem; margin: 0 0 12px; color: var(--accent); }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .stat .label { font-size: .85rem; color: var(--muted); }
+  .stat .value { font-size: 1.8rem; font-weight: 700; margin: 4px 0; }
+  .stat .note { font-size: .8rem; color: var(--muted); }
+  .list { list-style: none; margin: 0; padding: 0; }
+  .list li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .list li:last-child { border-bottom: none; }
+  .muted { color: var(--muted); font-size: .85rem; }
+  .party { border-left: 6px solid var(--c); }
+  .party .name { font-weight: 700; }
+  .party .seats { font-size: 1.4rem; font-weight: 700; }
+  .chart svg { width: 100%; height: auto; display: block; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; font-size: .9rem; }
+  .legend span::before {
+    content: ""; display: inline-block; width: 12px; height: 12px;
+    border-radius: 50%; background: var(--c); margin-right: 6px; vertical-align: middle;
+  }
+  .news .outlet { font-size: .8rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .news .headline { margin: 4px 0; font-weight: 600; }
+  .news li { display: block; }
+  .warn { color: #b45309; font-size: .9rem; }
+  @media (min-width: 720px) {
+    .parties { grid-template-columns: repeat(3, 1fr); }
+    header h1 { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<!-- ============================================================
+     DATA SECTION — edit the numbers and names here.
+     Everything on the page is generated from this object.
+     ============================================================ -->
+<script>
+const DATA = {
+  country: "Norvelia",
+
+  // Four economy figures
+  economy: [
+    { label: "GDP growth",    value: "2.1", unit: "%",         note: "Year on year" },
+    { label: "Unemployment",  value: "6.4", unit: "%",         note: "Share of labour force" },
+    { label: "Inflation",     value: "3.2", unit: "%",         note: "Consumer prices, year on year" },
+    { label: "Public debt",   value: "58",  unit: "% of GDP",  note: "General government" }
+  ],
+
+  // Five regions — population is a plain number of people
+  regions: [
+    { name: "Northmark",     population: 2400000 },
+    { name: "Eastvale",      population: 3100000 },
+    { name: "Coastlands",    population: 1800000 },
+    { name: "Central Plain", population: 4000000 },
+    { name: "Highridge",     population: 1200000 }
+  ],
+
+  // Total parliament size and party seat counts (must add up to parliamentSize)
+  parliamentSize: 300,
+  parties: [
+    { id: "civic",  name: "Civic Alliance",   lean: "Centre-right",          color: "#2b6cb0", seats: 120 },
+    { id: "front",  name: "People's Front",   lean: "Left",                  color: "#c53030", seats: 100 },
+    { id: "heart",  name: "Heartland Party",  lean: "National-conservative", color: "#b7791f", seats: 80 }
+  ],
+
+  // Left-to-right order of parties in the seating chart
+  hemicycleOrder: ["front", "civic", "heart"],
+
+  // News feed placeholders
+  outlets: [
+    { name: "The Norvelia Ledger",   headline: "Placeholder headline for the Ledger",   time: "1h ago" },
+    { name: "The Morning Courier",   headline: "Placeholder headline for the Courier",  time: "2h ago" },
+    { name: "The National Standard", headline: "Placeholder headline for the Standard", time: "3h ago" },
+    { name: "Norvelia Public Radio", headline: "Placeholder headline for Public Radio", time: "4h ago" },
+    { name: "The Daily Flash",       headline: "Placeholder headline for the Flash",    time: "5h ago" }
+  ]
+};
+</script>
+<!-- ============================================================ -->
+
+<header>
+  <h1 id="country"></h1>
+  <p>National dashboard — placeholder figures for a fictional country.</p>
+</header>
+
+<section>
+  <h2>Economy</h2>
+  <div class="grid" id="economy"></div>
+</section>
+
+<section>
+  <h2>Regions</h2>
+  <div class="card">
+    <ul class="list" id="regions"></ul>
+  </div>
+</section>
+
+<section>
+  <h2>Parties</h2>
+  <div class="grid parties" id="parties"></div>
+</section>
+
+<section>
+  <h2>Parliament</h2>
+  <div class="card chart">
+    <svg id="hemicycle" viewBox="-1.12 -1.12 2.24 1.2" role="img" aria-label="Parliament seating chart"></svg>
+    <div class="legend" id="legend"></div>
+    <p class="warn" id="seatWarning"></p>
+  </div>
+</section>
+
+<section>
+  <h2>News</h2>
+  <div class="card news">
+    <ul class="list" id="news"></ul>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const fmtPop = (n) => (n / 1e6).toFixed(1) + " million";
+
+  // Header
+  $("country").textContent = DATA.country;
+
+  // Economy
+  $("economy").innerHTML = DATA.economy.map(e => `
+    <div class="card stat">
+      <div class="label">${e.label}</div>
+      <div class="value">${e.value}<span class="unit">${e.unit}</span></div>
+      <div class="note">${e.note}</div>
+    </div>`).join("");
+
+  // Regions
+  $("regions").innerHTML = DATA.regions.map(r =>
+    `<li><span>${r.name}</span><strong>${fmtPop(r.population)}</strong></li>`).join("");
+
+  // Parties
+  $("parties").innerHTML = DATA.parties.map(p => `
+    <div class="card party" style="--c:${p.color}">
+      <div class="name">${p.name}</div>
+      <div class="muted">${p.lean}</div>
+      <div class="seats">${p.seats} <span class="muted" style="font-size:.9rem">seats</span></div>
+    </div>`).join("");
+
+  // Parliament: generate a fan of seats and fill them left to right
+  function hemicycleSeats(total) {
+    const rows = 8, inner = 0.5, outer = 1.0;
+    const radii = Array.from({ length: rows }, (_, i) => inner + (outer - inner) * i / (rows - 1));
+    const W = radii.reduce((a, b) => a + b, 0);
+    const counts = radii.map(r => Math.floor(total * r / W));
+    let rem = total - counts.reduce((a, b) => a + b, 0);
+    for (let i = rows - 1; rem > 0; i = (i + rows - 1) % rows, rem--) counts[i]++;
+
+    const pts = [];
+    radii.forEach((r, i) => {
+      const c = counts[i];
+      for (let j = 0; j < c; j++) {
+        const a = c === 1 ? Math.PI / 2 : Math.PI * (1 - j / (c - 1));
+        pts.push({ x: r * Math.cos(a), y: -r * Math.sin(a), a, r });
+      }
+    });
+    // Left to right: larger angle first; ties broken by radius
+    pts.sort((p, q) => q.a - p.a || p.r - q.r);
+    return pts;
+  }
+
+  const byId = Object.fromEntries(DATA.parties.map(p => [p.id, p]));
+  const assigned = [];
+  DATA.hemicycleOrder.forEach(id => {
+    for (let k = 0; k < (byId[id] ? byId[id].seats : 0); k++) assigned.push(byId[id]);
+  });
+  const seats = hemicycleSeats(DATA.parliamentSize);
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = $("hemicycle");
+  seats.forEach((s, i) => {
+    const party = assigned[i];
+    const c = document.createElementNS(svgNS, "circle");
+    c.setAttribute("cx", s.x.toFixed(4));
+    c.setAttribute("cy", s.y.toFixed(4));
+    c.setAttribute("r", "0.035");
+    c.setAttribute("fill", party ? party.color : "#999");
+    svg.appendChild(c);
+  });
+
+  $("legend").innerHTML = DATA.parties.map(p =>
+    `<span style="--c:${p.color}">${p.name} (${p.seats})</span>`).join("");
+
+  const total = DATA.parties.reduce((a, p) => a + p.seats, 0);
+  if (total !== DATA.parliamentSize) {
+    $("seatWarning").textContent =
+      `Warning: party seats add up to ${total}, not ${DATA.parliamentSize}.`;
+  }
+
+  // News
+  $("news").innerHTML = DATA.outlets.map(o => `
+    <li>
+      <div>
+        <div class="outlet">${o.name}</div>
+        <div class="headline">${o.headline}</div>
+      </div>
+      <span class="muted">${o.time}</span>
+    </li>`).join("");
+})();
+</script>
+</body>
+</html>
